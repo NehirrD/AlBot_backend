@@ -1,0 +1,12 @@
+# SearXNG ayarları - backend JSON formatında sonuç alabilsin diye
+use_default_settings: true
+
+search:
+  formats:
+    - html
+    - json
+
+server:
+  secret_key: "local_dev_secret_change_in_prod"
+  limiter: false          # sadece iç ağdan çağrıldığı için kapalı
+  image_proxy: false
