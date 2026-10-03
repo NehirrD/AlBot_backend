@@ -1,0 +1,1 @@
+# Verifies Zitadel-issued JWT tokens against its public keys and extracts the user id and roles.

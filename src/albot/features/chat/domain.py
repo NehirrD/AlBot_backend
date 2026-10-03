@@ -1,0 +1,1 @@
+# Holds the pure business rules of chat sessions and messages, such as message roles and ordering, with no framework dependencies.

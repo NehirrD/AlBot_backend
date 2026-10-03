@@ -1,0 +1,1 @@
+# Defines the base DomainEvent class and the dispatcher that delivers events to their registered handlers.

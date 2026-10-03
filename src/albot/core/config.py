@@ -1,0 +1,1 @@
+# Loads and validates all environment settings from the .env file into a single settings object.

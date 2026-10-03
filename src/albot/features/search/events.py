@@ -1,0 +1,1 @@
+# Defines the domain events of the search flow such as SearchRequested, CrawlCompleted, and SearchCompleted.

@@ -1,0 +1,1 @@
+# Reacts to search domain events by publishing the next task to the queue or sending progress updates.

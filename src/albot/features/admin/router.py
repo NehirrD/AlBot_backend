@@ -1,0 +1,1 @@
+# Exposes the admin-only API endpoints used by the Refine panel, protected by the admin role.

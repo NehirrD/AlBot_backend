@@ -1,0 +1,1 @@
+# Reacts to events from other features, for example adding the assistant reply to a chat session when a search completes.

@@ -1,0 +1,1 @@
+# Contains the chat use cases such as creating a session, saving a message, loading recent history, and summarizing long conversations.

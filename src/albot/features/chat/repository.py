@@ -1,0 +1,1 @@
+# Reads and writes chat sessions and messages in the database and converts between table rows and domain objects.

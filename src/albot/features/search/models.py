@@ -1,0 +1,1 @@
+# Defines the database tables that store search requests and their logs.

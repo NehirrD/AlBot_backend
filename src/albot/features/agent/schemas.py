@@ -1,0 +1,1 @@
+# Defines the structured output format expected back from the LLM, such as the list of best products.

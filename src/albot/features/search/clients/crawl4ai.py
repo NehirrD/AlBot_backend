@@ -1,0 +1,1 @@
+# Sends URLs to the Crawl4AI service and returns the extracted product data.

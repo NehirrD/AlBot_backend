@@ -1,0 +1,1 @@
+# Stores the prompt templates that are sent to the LLM.

@@ -1,0 +1,1 @@
+# Defines the request and response models of the search API.

@@ -1,0 +1,1 @@
+# Streams real-time search progress updates to the client over a WebSocket connection.

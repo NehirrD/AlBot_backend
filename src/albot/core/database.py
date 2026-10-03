@@ -1,0 +1,1 @@
+# Creates the async SQLAlchemy engine and provides the get_db dependency that opens and closes a database session per request.

@@ -120,22 +120,6 @@ services:
       start_period: 40s
     restart: unless-stopped
 
-
-  zitadel_db:
-    image: postgres:16
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${ZITADEL_DB_ADMIN_PASSWORD:-postgres}
-      POSTGRES_DB: zitadel
-    volumes:
-      - zitadel_postgres:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d zitadel -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
   zitadel:
     image: ghcr.io/zitadel/zitadel:${ZITADEL_VERSION:-latest}
     user: "0"
@@ -147,14 +131,14 @@ services:
       ZITADEL_EXTERNALPORT: ${ZITADEL_PORT:-8080}
       ZITADEL_EXTERNALSECURE: "false"
       ZITADEL_TLS_ENABLED: "false"
-      ZITADEL_DATABASE_POSTGRES_HOST: zitadel_db
+      ZITADEL_DATABASE_POSTGRES_HOST: db
       ZITADEL_DATABASE_POSTGRES_PORT: 5432
       ZITADEL_DATABASE_POSTGRES_DATABASE: zitadel
       ZITADEL_DATABASE_POSTGRES_USER_USERNAME: zitadel
       ZITADEL_DATABASE_POSTGRES_USER_PASSWORD: ${ZITADEL_DB_PASSWORD:-zitadel_local_pw}
       ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE: disable
-      ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME: postgres
-      ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD: ${ZITADEL_DB_ADMIN_PASSWORD:-postgres}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME: ${POSTGRES_USER:-albot}
+      ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD: ${POSTGRES_PASSWORD:-albot_local_pw}
       ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE: disable
 
       ZITADEL_FIRSTINSTANCE_LOGINCLIENTPATPATH: /zitadel-data/login-client.pat
@@ -171,7 +155,7 @@ services:
     volumes:
       - zitadel_data:/zitadel-data
     depends_on:
-      zitadel_db:
+      db:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "/app/zitadel", "ready"]
@@ -199,5 +183,4 @@ services:
 volumes:
   postgres_data:
   rabbitmq_data:
-  zitadel_postgres:
   zitadel_data:

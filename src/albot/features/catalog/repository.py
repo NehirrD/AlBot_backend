@@ -1,0 +1,1 @@
+# Handles reading and writing catalog data in the database.

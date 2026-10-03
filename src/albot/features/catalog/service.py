@@ -1,0 +1,1 @@
+# Contains the business logic for managing products and categories.

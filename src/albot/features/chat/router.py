@@ -1,0 +1,1 @@
+# Exposes the chat HTTP endpoints for creating sessions, sending messages, and retrieving or deleting chat history.

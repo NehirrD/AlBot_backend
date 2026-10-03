@@ -1,0 +1,1 @@
+# Manages the RabbitMQ connection and provides helpers to publish and consume queue messages.

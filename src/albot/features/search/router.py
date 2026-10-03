@@ -1,0 +1,1 @@
+# Exposes the search HTTP endpoints and wires the service together with its dependencies.

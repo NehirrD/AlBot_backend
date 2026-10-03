@@ -1,0 +1,1 @@
+# Calls the SearXNG service and returns the result URLs for a search query.

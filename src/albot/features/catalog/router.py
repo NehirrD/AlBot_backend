@@ -1,0 +1,1 @@
+# Exposes the HTTP endpoints for browsing and managing products and categories.

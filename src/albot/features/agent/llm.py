@@ -1,0 +1,1 @@
+# Wraps the connection to the LLM provider so the rest of the code can send prompts without knowing which model is used.

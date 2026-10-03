@@ -1,0 +1,1 @@
+# Reads and writes search data in the database and converts between table rows and domain objects.

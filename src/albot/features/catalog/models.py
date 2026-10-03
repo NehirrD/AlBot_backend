@@ -1,0 +1,1 @@
+# Defines the database tables for products and categories.
