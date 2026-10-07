@@ -1,1 +1,10 @@
-# Loads and validates all environment settings from the .env file into a single settings object.
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    database_url: str
+
+
+settings = Settings()
