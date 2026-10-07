@@ -120,6 +120,8 @@ Features communicate in two ways only:
 
 ## 4. Request flow
 
+<img width="1600" height="626" alt="agent-components" src="https://github.com/user-attachments/assets/b42785b3-9128-492a-8f6b-22c5397e59ba" />
+
 Planned flow for one user message:
 
 ```
