@@ -1,1 +1,2 @@
 # Provides the get_current_user and require_role FastAPI dependencies used to protect endpoints.
+#role enum
