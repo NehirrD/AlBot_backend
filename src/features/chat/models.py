@@ -6,7 +6,7 @@ from datetime import datetime
 from sqlalchemy import Boolean, DateTime,Enum, ForeignKey,Integer, String, Text,UniqueConstraint, func,text
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
-from albot.core.database import Base
+from core import Base
 
 class MessageRole(str, enum.Enum):
     USER="user"

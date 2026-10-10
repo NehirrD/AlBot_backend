@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import DateTime, ForeignKey, String, func, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
-from albot.core.database import Base
+from core import Base
 
 class AdminAuditLog(Base):
     __tablename__ = "admin_audit_log"
