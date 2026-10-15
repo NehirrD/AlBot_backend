@@ -5,7 +5,7 @@ from decimal import Decimal
 from sqlalchemy import DateTime, Enum,  ForeignKey, Index, Integer, Numeric,String,Text, UniqueConstraint, func,text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
-from core import Base
+from core.database import Base
 
 class JobStatus(str, enum.Enum):
     QUEUED = "queued"
