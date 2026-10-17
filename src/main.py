@@ -1,5 +1,4 @@
 # Creates the FastAPI app, registers the feature routers and exception handlers, and serves as the application entry point.
-from fastapi import FastAPI
 from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
 from core.config import settings
@@ -11,11 +10,11 @@ app=FastAPI(
     swagger_ui_init_oauth={
         "clientId": settings.ZITADEL_CLIENT_ID,
         "usePkceWithAuthorizationCodeGrant": True,
-        "scopes":(
-            "openid profile email"
-            f"urn:zitadel:iam:org:project:id:{settings.ZITADEL_PROJECT_ID}:aud"
+        "scopes": (
+            "openid profile email "
+            f"urn:zitadel:iam:org:project:id:{settings.ZITADEL_PROJECT_ID}:aud "
             "urn:zitadel:iam:org:projects:roles"
-            )
+)
     }
 )
 
