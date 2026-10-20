@@ -4,7 +4,8 @@ PostgreSQL, accessed through SQLAlchemy (async) with Alembic migrations. This do
 
 ## 1. Diagram
 
-<img width="1906" height="2349" alt="database_diagram" src="https://github.com/user-attachments/assets/2de33eaf-8d50-4618-9eb1-b5e083802544" />
+<img width="2270" height="1788" alt="albot_db_diagram" src="https://github.com/user-attachments/assets/ed0bfeba-650d-4e11-955e-bb86c8f01985" />
+
 
 ## 2. Overview
 
@@ -140,6 +141,35 @@ The **checkpoint** of one search. If a worker crashes, another worker reads this
 | `started_at` / `finished_at` | When the job started and ended |
 
 `current_step` is *where* the job is; `status` is *how* it is doing. For example, a job asking the user a question is in `plan` with status `waiting_user`.
+
+### context_log
+
+Append-only journal of a job: one row per event (user message, step start/finish, LLM call, tool call, decision, assistant message, error). Rows are never updated. Before each LLM call, the agent reads the events it needs from here and builds a short prompt, so the whole history is never sent. Token and cost totals can be calculated with `SUM` over the rows.
+
+This table has no `updated_at` on purpose, because rows never change. It is the exception to the common columns rule.
+
+| Column | Purpose |
+|---|---|
+| session_id | Which chat. Makes session-level queries possible ("how many tokens did this chat use?") |
+| job_id | Which job. Events are deleted with the job (`ON DELETE CASCADE`) |
+| message_id | Related chat message, nullable. The message text is not copied here, so the same information never lives in two places |
+| seq | Order inside the job (1, 2, 3...). Used instead of a timestamp because two events can happen in the same millisecond. `(job_id, seq)` is unique |
+| kind | Event type: user_message, step_started, step_finished, llm_call, tool_call, decision, assistant_message, error |
+| actor | Who did it: user, orchestrator, llm_cheap, llm_strong, tool |
+| step | Agent step (plan, collect...). Empty for events like user messages |
+| round | Re-plan round (1, 2, 3), so two PLAN runs do not get mixed |
+| summary | Short internal note, e.g. "31 products removed by price" |
+| public_message | Sentence shown to the user. If empty, nothing is shown |
+| data | Structured data for machines: criteria, filters, id lists, counters. Never raw HTML or full product bodies |
+| model | LLM model used (llm_call rows only) |
+| prompt_tokens / completion_tokens | Tokens sent and received (llm_call rows only) |
+| cost_usd | Cost of this call, 6 decimals (llm_call rows only) |
+| latency_ms | How long the call took (llm_call rows only) |
+| created_at | When the event happened |
+
+Indexes: `(job_id, seq)` unique, `(session_id, created_at)` for session-level queries.
+
+`seq` is assigned in one place only: the orchestrator's journal append function. A job is processed by one worker at a time, so "last seq + 1" is enough. If two writers collide, the unique constraint catches it.
 
 ### `crawled_pages`
 Raw HTML pages fetched by the crawler. They are large, so they live in their own table; `search_jobs` only points to them by id. This also prevents raw HTML from being sent to the LLM by accident.
