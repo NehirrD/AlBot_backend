@@ -11,7 +11,7 @@ x-backend: &backend
 services:
   backend:
     <<: *backend
-    command: uvicorn albot.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - "${APP_PORT:-8000}:8000"
     depends_on:
@@ -24,7 +24,7 @@ services:
 
   crawl_worker:
     <<: *backend
-    command: python -m albot.workers.crawl_worker
+    command: python -m workers.crawl_worker
     deploy:
       replicas: 2
     depends_on:
@@ -41,7 +41,7 @@ services:
 
   llm_worker:
     <<: *backend
-    command: python -m albot.workers.llm_worker
+    command: python -m workers.llm_worker
     depends_on:
       db:
         condition: service_healthy

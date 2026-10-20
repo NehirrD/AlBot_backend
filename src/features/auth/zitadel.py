@@ -1,11 +1,11 @@
 # Verifies Zitadel-issued JWT tokens against its public keys and extracts the user id and roles.
 
-import jwt
-from jwt import PyJWKClient
+import jwt #jwt imzasını doğrulamak için
+from jwt import PyJWKClient #public keyleri önbelleğe alır
 from core.config import settings
 from core.exceptions import UnauthorizedError
 
-ROLES_CLAIM = "urn:zitadel:iam:org:project:roles"
+ROLES_CLAIM = "urn:zitadel:iam:org:project:roles" #zitadel rolleri tokenin bu isim alanında taşır
 _jwks=PyJWKClient(settings.ZITADEL_JWKS_URL, cache_keys=True)
 
 def verify_token(token:str) ->dict:
@@ -17,6 +17,7 @@ def verify_token(token:str) ->dict:
         raise UnauthorizedError(f"Invalid token: {e}")
 
 
+# Reads the role names from the token's roles claim and returns them as a set.
 def roles_from(claims:dict)->set[str]:
     roles= set(claims.get(ROLES_CLAIM, {}).keys())
     return roles or {"user"} #yeni kayıt olan herkes user ile başlar, adminlik zitadel de elle girilir.

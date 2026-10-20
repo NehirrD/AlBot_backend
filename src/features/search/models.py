@@ -10,7 +10,7 @@ class SearchQuery(Base):
     __tablename__ = "search_queries"
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
     session_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("chat_sessions.id"), nullable=False)
-    job_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("search_jobs.id"))
+    job_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("search_jobs.id",ondelete="CASCADE"))
     message_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("chat_messages.id"))
     raw_query: Mapped[str] = mapped_column(Text, nullable=False)
     extracted_filters: Mapped[dict | None] = mapped_column(JSONB)
@@ -23,7 +23,7 @@ class CrawledPage(Base):
     __tablename__ = "crawled_pages"
     __table_args__ = (UniqueConstraint("job_id", "url"),)
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
-    job_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("search_jobs.id"), nullable=False)
+    job_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("search_jobs.id",ondelete="CASCADE"), nullable=False)
     source: Mapped[str] = mapped_column(String, nullable=False)
     url: Mapped[str] = mapped_column(Text, nullable=False)
     http_status: Mapped[int | None] = mapped_column(Integer)

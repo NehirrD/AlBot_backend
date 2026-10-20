@@ -20,7 +20,7 @@ class CurrentUser:
 
 
 async def get_current_user(token: str=Depends(oauth2_scheme)) -> CurrentUser:
-    claims =verify_token(token)
+    claims = verify_token(token)
     return CurrentUser(
         sub=claims["sub"],
         email=claims.get("email"),
