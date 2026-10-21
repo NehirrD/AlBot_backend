@@ -140,7 +140,7 @@ The message on the queue only carries the job id. The job's real state always li
 
 The agent is a **finite state machine (FSM)** run by an **orchestrator**. Three ideas fit together:
 
-- **FSM (`machine.py`)**: which steps exist and which transitions are allowed.
+- **FSM (`fsm.py`)**: which steps exist and which transitions are allowed.
 - **Orchestrator (`orchestrator.py`)**: the loop that runs the current step and moves to the next one.
 - **Context management**: what each step (and each LLM call) is allowed to see.
 
@@ -159,7 +159,7 @@ any step -> FAILED   (on permanent error)
 - `VALIDATE -> RESEARCH`: evidence is missing, a small agent loop reads forums, reviews or video transcripts (later phase, at most 8 tool calls).
 - When the budget runs out, the orchestrator jumps to `RANK` and finishes with what it has.
 
-The transition table lives in code (`machine.py`); a transition that is not in the table is an error.
+The transition table lives in code (`fsm.py`); a transition that is not in the table is an error.
 
 ### The orchestrator loop
 
@@ -216,7 +216,7 @@ Services raise framework-independent errors from `core/exceptions.py`. `main.py`
 
 ## 9. Implementation order
 
-1. `machine.py`: `Step` enum and the transition table.
+1. `fsm.py`: `Step` enum and the transition table.
 2. `orchestrator.py`: the loop, with fake steps and no LLM.
 4. Steps one by one: `plan`, `collect`, `validate`, `rank`.
 5. Context management details: product compression, chat summary, budget limits.
