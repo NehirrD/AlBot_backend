@@ -20,7 +20,7 @@ This document describes how the AlBot backend is organized and why. For setup in
 ## 2. Folder structure
 
 ```
-src/albot/
+src/
 ├── __init__.py
 ├── main.py                  # Creates the FastAPI app, registers routers and exception handlers
 │
@@ -205,8 +205,8 @@ Services raise framework-independent errors from `core/exceptions.py`. `main.py`
 
 ## 8. Conventions
 
-- Import from the package root: `from albot.core.config import settings`, `from albot.features.agent.service import AgentService`.
-- Every directory under `src/albot` and `tests` contains an `__init__.py`.
+- Import from the package root: `from core.config import settings`, `from features.agent.service import AgentService`.
+- Every directory under `src/` and `tests` contains an `__init__.py`.
 - Tests mirror the feature layout; file names start with `test_`.
 - Configuration comes only from `core/config.py`; never call `os.getenv` elsewhere.
 - Secrets live in `.env` (never committed); `.env.example` lists every variable.
