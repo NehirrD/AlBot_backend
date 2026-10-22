@@ -157,7 +157,7 @@ This table has no `updated_at` on purpose, because rows never change. It is the 
 | kind | Event type: user_message, step_started, step_finished, llm_call, tool_call, decision, assistant_message, error |
 | actor | Who did it: user, orchestrator, llm_cheap, llm_strong, tool |
 | step | Agent step (plan, collect...). Empty for events like user messages |
-| round | Re-plan round (1, 2, 3), so two PLAN runs do not get mixed |
+| replan_round | Re-plan round (1, 2, 3), so two PLAN runs do not get mixed |
 | summary | Short internal note, e.g. "31 products removed by price" |
 | public_message | Sentence shown to the user. If empty, nothing is shown |
 | data | Structured data for machines: criteria, filters, id lists, counters. Never raw HTML or full product bodies |
