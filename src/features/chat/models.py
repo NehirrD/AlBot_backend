@@ -16,7 +16,7 @@ class MessageRole(str, enum.Enum):
 
 class SessionStatus(str, enum.Enum):
     ACTIVE="active"
-    INACTIVE="archived"
+    ARCHIEVED="archived"
 
 class ChatSession(Base):
     __tablename__="chat_sessions"
