@@ -1,6 +1,6 @@
-#Shared Pydantic types used by several features' schemas.
-#One mission: Converts decimal to JSON number
-#Pydantic v2 writes Decimal as a string in JSON
+# Shared Pydantic types used by the DTOs of several features.
+# One job: write Decimal values as JSON numbers.
+# Pydantic v2 writes Decimal as a string in JSON by default.
 from decimal import Decimal
 from typing import Annotated
 from pydantic import PlainSerializer

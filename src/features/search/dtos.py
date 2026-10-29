@@ -3,6 +3,7 @@ from typing import Any
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 
+
 class SearchQueryResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: UUID
@@ -12,10 +13,10 @@ class SearchQueryResponse(BaseModel):
     raw_query: str
     extracted_filters: dict[str, Any] | None = None
     search_round: int
-    status: str  #pending -> done or failed
+    status: str
     created_at: datetime
 
-
+#info of a one fetched page
 class CrawledPageResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: UUID
