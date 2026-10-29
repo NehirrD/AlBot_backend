@@ -1,1 +1,0 @@
-# Contains the admin use cases such as listing all searches, reviewing failures, and computing statistics.

@@ -1,1 +1,0 @@
-# Orchestrates the search use cases such as starting a search, crawling, and ranking, using injected dependencies.
