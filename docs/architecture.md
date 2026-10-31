@@ -27,6 +27,7 @@ src/
 ├── core/                    # Infrastructure only, no business logic
 │   ├── config.py            # Loads and validates settings from .env
 │   ├── database.py          # Async engine and get_db dependency
+│   ├── dtos.py              # Shared DTO types (e.g. JsonDecimal)
 │   ├── rabbitmq.py          # Connection, publish and consume helpers
 │   ├── events.py            # DomainEvent base class and event dispatcher
 │   ├── exceptions.py        # NotFoundError, ForbiddenError, ValidationError
@@ -35,37 +36,39 @@ src/
 ├── features/
 │   ├── auth/                # Zitadel token verification and role checks
 │   │   ├── zitadel.py       # Verifies JWTs against Zitadel's public keys
-│   │   └── dependencies.py  # get_current_user, require_role
+│   │   ├── dependencies.py  # get_current_user, require_role
+│   │   └── dtos.py, models.py
 │   │
 │   ├── agent/               # The brain: runs one search job as a state machine
-│   │   ├── machine.py       # Step enum and the allowed-transitions table
+│   │   ├── fsm.py           # Step enum, allowed-transitions table, default order
+│   │   ├── dossier.py       # In-memory journal of one job (mirrors context_log rows)
+│   │   ├── gateways.py      # Context (ctx) with the gateways + fake LLM / dataset
 │   │   ├── orchestrator.py  # The loop that runs steps (the only place with a loop)
 │   │   ├── steps/           # One step = one file
-│   │   │   ├── plan.py      # Understand the query, choose sites and search queries
-│   │   │   ├── collect.py   # Gather pages through SearXNG and Crawl4AI
-│   │   │   ├── validate.py  # Rule filter and product verification
-│   │   │   └── rank.py      # Rank, explain, cross-check against real data
-│   │   ├── llm.py           # LLM client (cheap / strong model, retry, token log)
-│   │   ├── prompts.py       # Prompt templates
-│   │   ├── models.py        # search_jobs (checkpoint) table
-│   │   ├── schemas.py       # API schemas and the small job-state model
-│   │   ├── repository.py    # Database access
-│   │   ├── service.py       # Creates a job, queues it, reads its status
-│   │   └── router.py        # HTTP endpoints
+│   │   │   ├── base.py      # BaseStep (abstract) and StepResult
+│   │   │   ├── plan.py      # Understand the query, extract filters
+│   │   │   ├── collect.py   # Gather candidate products
+│   │   │   ├── validate.py  # Rule filter (plain code)
+│   │   │   └── rank.py      # Pick the best 3 and explain
+│   │   ├── policy.py        # Budget and retry rules (planned)
+│   │   ├── llm.py           # Real LLM client: cheap / strong model, retry, token log (planned)
+│   │   ├── prompts.py       # Prompt templates (planned)
+│   │   ├── repository.py    # Database access (planned)
+│   │   ├── models.py        # search_jobs, context_log, agent_steps, recommendations
+│   │   ├── dtos.py          # API schemas and SearchFilters
+│   │   └── router.py        # HTTP endpoints (currently the demo endpoint only)
 │   │
 │   ├── search/              # Search infrastructure and stored results
 │   │   ├── clients/
 │   │   │   ├── searxng.py   # SearXNG client
 │   │   │   └── crawl4ai.py  # Crawl4AI client
-│   │   ├── router.py, schemas.py, models.py, domain.py
-│   │   ├── events.py, event_handlers.py
-│   │   └── service.py, repository.py
+│   │   └── router.py, dtos.py, models.py, domain.py,
+│   │       events.py, event_handlers.py, repository.py
 │   │
 │   ├── chat/                # Chat sessions, messages, progress channel
-│   │   ├── websocket.py     # Streams progress to the client
-│   │   ├── router.py, schemas.py, models.py, domain.py
-│   │   ├── event_handlers.py
-│   │   └── service.py, repository.py
+│   │   ├── sse.py           # Streams progress to the client (Server-Sent Events)
+│   │   └── router.py, dtos.py, models.py, domain.py,
+│   │       event_handlers.py, repository.py
 │   │
 │   ├── catalog/             # Products, categories, favorites
 │   └── admin/               # API for the Refine admin panel
@@ -80,7 +83,8 @@ Outside `src/`:
 ```
 docker/searxng/settings.yml  # SearXNG settings (enables JSON output)
 migrations/                  # Alembic migrations
-tests/                       # Mirrors the feature layout
+scripts/                     # Runs the agent in the terminal with fake data - temporary
+tests/                       # Mirrors the feature layout (tests/agent/mocks.py, 
 docs/                        # Project documentation
 ```
 
@@ -89,7 +93,7 @@ docs/                        # Project documentation
 | Feature | Responsibility |
 |---|---|
 | `auth` | Verifies Zitadel tokens, exposes the current user and role checks. Also stores the local `users` table. |
-| `agent` | Owns the lifecycle of one search job: state machine, steps, LLM calls, budget, checkpoints. |
+| `agent` | Owns the lifecycle of one search job: state machine, steps, LLM calls, budget, journal. |
 | `search` | SearXNG and Crawl4AI clients, search queries and crawled pages. |
 | `chat` | Chat sessions and messages (including the summary used for follow-ups) and the progress channel to the client. |
 | `catalog` | Stores scraped products, categories and user favorites. |
@@ -98,23 +102,24 @@ docs/                        # Project documentation
 ## 3. Layering rules
 
 Inside a feature, files depend on each other in one direction only:
-
+ 
 ```
 router.py  ->  service.py  ->  domain.py
                    |
                    +-> repository.py   (database)
                    +-> clients/*.py    (external services)
 ```
-
+ 
 - `domain.py` imports no framework (no FastAPI, SQLAlchemy or httpx). It contains plain Python rules.
 - `service.py` does not know HTTP. It raises exceptions from `core/exceptions.py`; `main.py` turns them into 404, 403 or 422 responses.
 - `router.py` stays thin. It checks permissions, calls the service and returns the result.
 - External tools live behind small client files. Replacing Crawl4AI or the LLM provider should change one file, not the whole feature.
+- `service.py` is created only when a feature needs it. Today `agent` has none: its demo router calls the orchestrator directly. The job-creating service arrives with the queue (see section 4).
 
 ### Features do not import each other's internals
 
 Features communicate in two ways only:
-
+ 
 1. **Domain events** through `core/events.py`. Example: when a job finishes, an event handler in `chat` adds the assistant message to the session.
 2. **Injected dependencies.** `agent` may use other features' services (search clients, catalog, chat), but they are passed in through the context gateways (section 5). Other features never import `agent`; this prevents circular dependencies.
 
@@ -126,11 +131,11 @@ Planned flow for one user message:
 
 ```
 1. Client sends a message        -> chat router (JWT checked by auth)
-2. agent.service creates a job   -> saves search_jobs row, publishes {search_id} to RabbitMQ
+2. agent service creates a job   -> saves search_jobs row, publishes {search_id} to RabbitMQ
 3. Worker takes the message      -> loads the job from PostgreSQL
 4. Orchestrator runs the steps   -> PLAN -> COLLECT -> VALIDATE -> RANK
-5. After every transition        -> checkpoint written to PostgreSQL, progress event to Redis
-6. Redis pub/sub                 -> progress streamed to the client
+5. After every step              -> journal rows written to context_log, progress event to Redis
+6. Redis pub/sub                 -> progress streamed to the client (SSE)
 7. Job completed                 -> event handler in chat adds the assistant message
 ```
 
@@ -138,10 +143,11 @@ The message on the queue only carries the job id. The job's real state always li
 
 ## 5. Agent design
 
-The agent is a **finite state machine (FSM)** run by an **orchestrator**. Three ideas fit together:
-
+The agent is a **finite state machine (FSM)** run by an **orchestrator**. Four ideas fit together:
+ 
 - **FSM (`fsm.py`)**: which steps exist and which transitions are allowed.
 - **Orchestrator (`orchestrator.py`)**: the loop that runs the current step and moves to the next one.
+- **Dossier (`dossier.py`)**: the journal of one job. Steps read earlier results from it; the orchestrator writes to it.
 - **Context management**: what each step (and each LLM call) is allowed to see.
 
 ### Steps and transitions
@@ -159,16 +165,16 @@ any step -> FAILED   (on permanent error)
 - `VALIDATE -> RESEARCH`: evidence is missing, a small agent loop reads forums, reviews or video transcripts (later phase, at most 8 tool calls).
 - When the budget runs out, the orchestrator jumps to `RANK` and finishes with what it has.
 
-The transition table lives in code (`fsm.py`); a transition that is not in the table is an error.
+The transition table lives in code (`fsm.py`). A step may return `next=Step.X` to choose the next step; if it returns nothing, `DEFAULT_NEXT` is used. A transition that is not in the table raises an error.
 
 ### The orchestrator loop
 
-On every transition the orchestrator, in this order:
-
-1. checks the budget (rounds, tool calls, cost ceiling, time limit),
-2. retries a failing step (at most 3 times),
-3. checks that the transition is allowed,
-4. writes the checkpoint (`search_jobs.current_step` + `context_snapshot`) to PostgreSQL.
+For every step the orchestrator, in this order:
+ 
+1. writes a `step_started` event,
+2. runs the step,
+3. writes a `step_finished` event with the step's summary, public message and data,
+4. picks the next step (`result.next` or `DEFAULT_NEXT`) and checks that the transition is allowed.
 
 If a worker crashes, another worker takes the job from the queue, reads `current_step` and continues from there. Steps must therefore be safe to run twice.
 
@@ -176,7 +182,7 @@ If a worker crashes, another worker takes the job from the queue, reads `current
 
 - Steps never call each other; only the orchestrator calls them.
 - A step reaches the outside world only through **context gateways** (`ctx.llm`, `ctx.search`, `ctx.crawler`, `ctx.store`, `ctx.cache`, `ctx.events`). In tests a fake gateway is plugged in, so no real LLM or internet is needed.
-- In the first version the gateways are a small class inside `orchestrator.py`. They move to their own file when they grow.
+  
 
 ### Context management (what the LLM sees)
 
@@ -189,6 +195,10 @@ The LLM has no memory; it only sees what we send. Answer quality depends mostly 
 5. **Long chats are summarized.** `chat_sessions.summary` plus the latest messages are sent instead of the whole history.
 6. **Cross-check the output.** Prices and specs written by the LLM are compared with the stored data before the user sees them.
 7. **The snapshot stays small.** Only references, filters and counters are kept in `context_snapshot`.
+
+### Where the LLM decides
+ 
+An agent is a system where the model decides what happens next. In this design the decision points are the `StepResult.next` value and the step logic itself (for example: "10 products wanted, 2 found, go back to PLAN"). For now those decisions are plain `if/else` code. When the LLM is connected, the same points call `ctx.llm` instead, and only the gateway implementation and the step bodies change.
 
 ## 6. Authentication and authorization
 
