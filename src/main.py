@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from core.config import settings
 from core.exceptions import ForbiddenError, UnauthorizedError
 from features.auth.dependencies import CurrentUser, get_current_user, require_role
-
+from features.agent.router import router as agent_router
 
 app=FastAPI(
     swagger_ui_init_oauth={
@@ -17,7 +17,7 @@ app=FastAPI(
 )
     }
 )
-
+app.include_router(agent_router)
 
 @app.exception_handler(UnauthorizedError)
 async def unauthorized_handler(request: Request, exc: UnauthorizedError):
