@@ -9,11 +9,9 @@ from features.agent.steps.plan import PlanStep
 from features.agent.steps.rank import RankStep
 from features.agent.steps.validate import ValidateStep
 from features.agent.fsm import Step
+from features.agent.dtos import RunRequest
 router = APIRouter(prefix="/agent", tags=["agent"])
 
-#users message: input
-class RunRequest(BaseModel):
-    query: str
 
 @router.post("/run-demo")
 async def run_demo(body: RunRequest):

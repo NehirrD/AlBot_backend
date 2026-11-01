@@ -6,6 +6,10 @@ from core.dtos import JsonDecimal
 from features.agent.models import JobStatus
 from features.catalog.dtos import ProductResponse
 
+#users message: input
+class RunRequest(BaseModel):
+    query: str
+
 # Responses (users):
 
 class JobResponse(BaseModel):
