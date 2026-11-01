@@ -1,1 +1,0 @@
-# Listens to the LLM queue and runs the ranking step of a search as a separate background process.
