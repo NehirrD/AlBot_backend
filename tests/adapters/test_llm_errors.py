@@ -1,20 +1,20 @@
 import asyncio
 from unittest.mock import AsyncMock, patch
 
-from openai import APITimeoutError, APIConnectionError
+from openai import APIConnectionError, APITimeoutError
 
-from adapters.llm.llm_adapter import LLMAdapter
-from adapters.llm.dtos.request_types import RequestType, Message
+from adapters.llm.dtos.llm_request_dto import LLMRequestDto, Message
 from adapters.llm.errors import (
-    LLMTimeoutError,
     LLMConnectionError,
+    LLMTimeoutError,
 )
+from adapters.llm.llm_adapter import LLMAdapter
 
 
 async def main():
     adapter = LLMAdapter()
 
-    request = RequestType(
+    request = LLMRequestDto(
         model="mistralai/mistral-large-4-1t-a52b",
         messages=[Message(role="user", content="Merhaba!")],
     )

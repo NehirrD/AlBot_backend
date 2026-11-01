@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 
 
-class ResponseType(BaseModel):
+class LLMResponseDto(BaseModel):
     content: str
     model: str
 

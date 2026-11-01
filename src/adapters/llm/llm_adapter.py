@@ -1,27 +1,29 @@
 # Listens to the LLM queue and runs the ranking step of a search as a separate background process.
 
 from openai import (
-    AsyncOpenAI,
     APIConnectionError,
-    APITimeoutError,
     APIStatusError,
-    RateLimitError,
+    APITimeoutError,
+    AsyncOpenAI,
     AuthenticationError,
+    RateLimitError,
 )
+
+from adapters.llm.dtos.llm_request_dto import LLMRequestDto
+from adapters.llm.dtos.llm_response_dto import LLMResponseDto
+from adapters.llm.errors import (
+    LLMAdapterError,
+    LLMConnectionError,
+    LLMResponseError,
+    LLMTimeoutError,
+)
+from adapters.llm.llm_base import BaseLLMAdapter
 
 # from openai import AsyncOpenAI
 from core.config import llm_settings  # settings
 
-from adapters.llm.dtos.request_types import RequestType
-from adapters.llm.dtos.response_types import ResponseType
-from adapters.llm.errors import (
-    LLMConnectionError,
-    LLMTimeoutError,
-    LLMResponseError,
-)
 
-
-class LLMAdapter:
+class LLMAdapter(BaseLLMAdapter):
     """Handles communication with external LLM providers."""
 
     def __init__(self):
@@ -32,7 +34,7 @@ class LLMAdapter:
 
         self.default_model = llm_settings.LLM_MODEL
 
-    async def generate(self, request: RequestType) -> ResponseType:
+    async def generate(self, request: LLMRequestDto) -> LLMResponseDto:
         """Generates a response from the LLM based on the provided request."""
         try:
             response = await self.client.chat.completions.create(
@@ -48,7 +50,7 @@ class LLMAdapter:
             if not content:
                 raise LLMResponseError("LLM is empty or returned an invalid response.")
 
-            return ResponseType(
+            return LLMResponseDto(
                 content=content,
                 model=response.model,
                 prompt_tokens=response.usage.prompt_tokens if response.usage else None,
