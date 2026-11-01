@@ -6,6 +6,10 @@ from core.dtos import JsonDecimal
 from features.agent.models import JobStatus
 from features.catalog.dtos import ProductResponse
 
+#users message: input
+class RunRequest(BaseModel):
+    query: str
+
 # Responses (users):
 
 class JobResponse(BaseModel):
@@ -62,8 +66,6 @@ class AdminAgentStepResponse(BaseModel):
 
 
 # Internal models (not sent over HTTP)
-# TODO: these will be replaced by `JobContext` when we write the orchestrator
-
 #Filters that PLAN extracts from the user's request - max price or minimum RAM
 class SearchFilters(BaseModel):
     keywords: list[str] = []
@@ -73,9 +75,3 @@ class SearchFilters(BaseModel):
     requirements: dict[str, Any] = Field(default_factory=dict)
 
 
-#small checkpoints for context log
-class JobSnapshot(BaseModel):
-    filters: SearchFilters | None = None
-    crawled_page_ids: list[UUID] = []
-    candidate_product_ids: list[UUID] = []
-    rejected_count: int = 0
