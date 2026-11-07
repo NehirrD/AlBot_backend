@@ -37,6 +37,6 @@ class FakeDataset:
 
 
 @dataclass
-class Context:
+class ContextToolBox:
     llm: LLMGateway
     dataset: DatasetGateway

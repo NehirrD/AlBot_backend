@@ -5,9 +5,9 @@ from features.agent.steps.base import BaseStep, StepResult
 class ValidateStep(BaseStep):
     name = Step.VALIDATE
 
-    async def run(self, dossier, ctx):
-        filters = dossier.get(Step.PLAN)["filters"]
-        products = dossier.get(Step.COLLECT)["products"]
+    async def run(self, context_dossier, context_tool_box):
+        filters = context_dossier.get(Step.PLAN)["filters"]
+        products = context_dossier.get(Step.COLLECT)["products"]
         req = filters["requirements"]
         max_price = filters["max_price"]
         valid = []

@@ -1,8 +1,7 @@
 from uuid import uuid4
 from fastapi import APIRouter
-from pydantic import BaseModel
-from features.agent.dossier import Dossier
-from features.agent.gateways import Context, FakeDataset, FakeLLM
+from features.agent.context_dossier import ContextDossier
+from features.agent.gateways import ContextToolBox, FakeDataset, FakeLLM
 from features.agent.orchestrator import Orchestrator
 from features.agent.steps.collect import CollectStep
 from features.agent.steps.plan import PlanStep
@@ -15,13 +14,13 @@ router = APIRouter(prefix="/agent", tags=["agent"])
 
 @router.post("/run-demo")
 async def run_demo(body: RunRequest):
-    d = Dossier(job_id=uuid4(), session_id=uuid4(), user_query=body.query)
-    ctx = Context(llm=FakeLLM(), dataset=FakeDataset())
+    context_dossier = ContextDossier(job_id=uuid4(), session_id=uuid4(), user_query=body.query)
+    context_tool_box = ContextToolBox(llm=FakeLLM(), dataset=FakeDataset())
     steps = [PlanStep(), CollectStep(), ValidateStep(), RankStep()]
-    final = await Orchestrator(steps, ctx).run(d)
+    final = await Orchestrator(steps, context_tool_box).run(context_dossier)
     return {
         "final_step": final,
-        "recommendations": (d.get(Step.RANK) or {}).get("recommendations", []),
-        #all dossier context:
-        "events": d.events,
+        "recommendations": (context_dossier.get(Step.RANK) or {}).get("recommendations", []),
+        #all context_dossier context:
+        "events": context_dossier.events,
     }

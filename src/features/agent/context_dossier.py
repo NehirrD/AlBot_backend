@@ -3,7 +3,7 @@ from uuid import UUID
 from features.agent.fsm import Step
 
 @dataclass
-class Dossier:
+class ContextDossier:
     job_id: UUID #search_job.id
     session_id: UUID #chat_session.id
     user_query: str
@@ -25,6 +25,6 @@ class Dossier:
                 return e["data"]
         return None
 
-    #dossier.get(Step.PLAN)      PLAN's output
-    #dossier.get(Step.COLLECT)   COLLECT's output
-    #dossier.get(Step.VALIDATE)  VALIDATE's output
+    #context_dossier.get(Step.PLAN)      PLAN's output
+    #context_dossier.get(Step.COLLECT)   COLLECT's output
+    #context_dossier.get(Step.VALIDATE)  VALIDATE's output
