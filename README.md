@@ -71,9 +71,18 @@ Then:
 
 ### 5. Run the API
 
+With the virtual environment active, start the API with:
+
 ```
-poetry run uvicorn main:app --reload --app-dir src
+dev
 ```
+
+Or, without activating the environment:
+
+```
+poetry run dev
+```
+The `dev` command runs `uvicorn main:app --reload --app-dir src`. It is created by `poetry install` (step 1).
 
 Open http://localhost:8000/docs, click **Authorize**, and log in.
 
