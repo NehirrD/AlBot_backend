@@ -17,8 +17,11 @@ dependencies = [
     "pydantic (>=2.14.2,<3.0.0)",
 ]
 
+[project.scripts]
+dev = "scripts:dev"
+
 [tool.poetry]
-package-mode = false
+packages = [{ include = "scripts.py", from = "src" }]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
