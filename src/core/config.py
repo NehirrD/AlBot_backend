@@ -21,5 +21,5 @@ class LLMSettings(BaseSettings):
     LLM_MODEL: str
 
 
-# settings = Settings()
+settings = Settings()
 llm_settings = LLMSettings()
