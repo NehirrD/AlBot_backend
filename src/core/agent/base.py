@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from features.agent.dossier import Dossier
+from features.agent.context_dossier import ContextDossier
 from features.agent.fsm import Step
-from features.agent.gateways import Context
+from features.agent.gateways import ContextToolBox
 
 @dataclass
 class StepResult:
@@ -16,4 +16,4 @@ class BaseStep(ABC):
     name: Step
 
     @abstractmethod
-    async def run(self, dossier: Dossier, ctx: Context) -> StepResult: ...
+    async def run(self, context_dossier: ContextDossier, context_tool_box: ContextToolBox) -> StepResult: ...

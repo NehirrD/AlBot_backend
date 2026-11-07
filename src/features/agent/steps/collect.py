@@ -1,12 +1,12 @@
 from features.agent.fsm import Step
-from features.agent.steps.base import BaseStep, StepResult
+from core.agent.base import BaseStep, StepResult
 
 
 class CollectStep(BaseStep):
     name = Step.COLLECT
 
-    async def run(self, dossier, ctx):
-        products = await ctx.dataset.all()
+    async def run(self, context_dossier, context_tool_box):
+        products = await context_tool_box.dataset.all()
         return StepResult(
             data={"products": products},
             summary=f"{len(products)} products collected",

@@ -42,7 +42,7 @@ src/
 │   ├── agent/               # The brain: runs one search job as a state machine
 │   │   ├── fsm.py           # Step enum, allowed-transitions table, default order
 │   │   ├── dossier.py       # In-memory journal of one job (mirrors context_log rows)
-│   │   ├── gateways.py      # Context (ctx) with the gateways + fake LLM / dataset
+│   │   ├── gateways.py      # ContextToolBox (ctx) with the gateways + fake LLM / dataset
 │   │   ├── orchestrator.py  # The loop that runs steps (the only place with a loop)
 │   │   ├── steps/           # One step = one file
 │   │   │   ├── base.py      # BaseStep (abstract) and StepResult
@@ -147,8 +147,8 @@ The agent is a **finite state machine (FSM)** run by an **orchestrator**. Four i
  
 - **FSM (`fsm.py`)**: which steps exist and which transitions are allowed.
 - **Orchestrator (`orchestrator.py`)**: the loop that runs the current step and moves to the next one.
-- **Dossier (`dossier.py`)**: the journal of one job. Steps read earlier results from it; the orchestrator writes to it.
-- **Context management**: what each step (and each LLM call) is allowed to see.
+- **ContextDossier (`dossier.py`)**: the journal of one job. Steps read earlier results from it; the orchestrator writes to it.
+- **ContextToolBox management**: what each step (and each LLM call) is allowed to see.
 
 ### Steps and transitions
 
@@ -184,7 +184,7 @@ If a worker crashes, another worker takes the job from the queue, reads `current
 - A step reaches the outside world only through **context gateways** (`ctx.llm`, `ctx.search`, `ctx.crawler`, `ctx.store`, `ctx.cache`, `ctx.events`). In tests a fake gateway is plugged in, so no real LLM or internet is needed.
   
 
-### Context management (what the LLM sees)
+### ContextToolBox management (what the LLM sees)
 
 The LLM has no memory; it only sees what we send. Answer quality depends mostly on that input, and too much input also lowers quality.
 
@@ -229,5 +229,5 @@ Services raise framework-independent errors from `core/exceptions.py`. `main.py`
 1. `fsm.py`: `Step` enum and the transition table.
 2. `orchestrator.py`: the loop, with fake steps and no LLM.
 4. Steps one by one: `plan`, `collect`, `validate`, `rank`.
-5. Context management details: product compression, chat summary, budget limits.
+5. ContextToolBox management details: product compression, chat summary, budget limits.
 6. `RESEARCH` step, `tools/` and an evaluation set of example queries.
