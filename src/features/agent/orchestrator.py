@@ -1,7 +1,7 @@
 from features.agent.context_dossier import ContextDossier
 from features.agent.fsm import DEFAULT_NEXT, Step, check
 from features.agent.gateways import ContextToolBox
-from features.agent.steps.base import BaseStep
+from core.agent.base import BaseStep
 
 class Orchestrator:
     def __init__(self, steps: list[BaseStep], context_tool_box: ContextToolBox):

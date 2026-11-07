@@ -1,6 +1,6 @@
 from features.agent.dtos import SearchFilters
 from features.agent.fsm import Step
-from features.agent.steps.base import BaseStep, StepResult
+from core.agent.base import BaseStep, StepResult
 
 class PlanStep(BaseStep):
     name = Step.PLAN

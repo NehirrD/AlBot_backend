@@ -1,6 +1,10 @@
 from dataclasses import dataclass
 from typing import Any, Protocol
-
+import json
+import re
+from adapters.llm.dtos.llm_request_dto import LLMRequestDto, Message
+from adapters.llm.llm_base import BaseLLMAdapter
+from features.agent.prompts import PLAN_SYSTEM_PROMPT
 
 class LLMGateway(Protocol):
     async def plan(self, query: str) -> dict: ...
@@ -10,15 +14,26 @@ class DatasetGateway(Protocol):
     async def all(self) -> list[dict]: ...
 
 
-class FakeLLM:
+class RealLLM:
+    def __init__(self, adapter: BaseLLMAdapter):
+        self.adapter = adapter
+
     async def plan(self, query: str) -> dict:
-        q = query.lower()
-        out: dict[str, Any] = {"keywords": ["laptop"], "requirements": {}}
-        if "render" in q:
-            out["requirements"] = {"min_ram_gb": 16, "gpu": "dedicated"}
-        if "uygun fiyat" in q:
-            out["max_price"] = 40000
-        return out
+        request = LLMRequestDto(
+            messages=[
+                Message(role="system", content=PLAN_SYSTEM_PROMPT),
+                Message(role="user", content=query),
+            ],
+            temperature=0.2,
+            max_tokens=500,
+        )
+        response = await self.adapter.generate(request)
+        return self._parse_json(response.content)
+
+    @staticmethod
+    def _parse_json(text: str) -> dict:
+        text = re.sub(r"^```(?:json)?|```$", "", text.strip(), flags=re.MULTILINE).strip()
+        return json.loads(text)
 
 
 class FakeDataset:
