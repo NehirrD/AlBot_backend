@@ -15,9 +15,9 @@ class Message(BaseModel):
     content: str
 
 
-class RequestType(BaseModel):
+class LLMRequestDto(BaseModel):
     """
-    RequestType is a Pydantic model that represents the structure of a request type.
+    LLMRequestDto is a Pydantic model that represents the structure of an LLM request.
     It includes the following fields:
     - messages: The messages for the request (list of Message objects).
     - model: The model to use for the request (string).
